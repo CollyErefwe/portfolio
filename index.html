@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allocazione Ribilanciata del Portafoglio</title>
+    <style>
+        :root {
+            --ff-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --chart-1: #3186ff;
+            --chart-2: #60d673;
+            --chart-3: #ffdb0f;
+            --surface: #FAF9F9;
+            --surface-bright: #ffffff;
+            --surface-container: #f2f0f0;
+            --surface-container-high: #e6e6e6;
+            --surface-container-highest: #e0e0e0;
+            --on-surface-default: #1f1f1f;
+            --on-surface-de-emphasis: #444746;
+            --stroke-default: #e3e3e3;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --surface: #0f0f0f;
+                --surface-bright: #1f1f1f;
+                --surface-container: #141414;
+                --surface-container-high: #1c1c1c;
+                --surface-container-highest: #171717;
+                --on-surface-default: #ffffff;
+                --on-surface-de-emphasis: #ababab;
+                --stroke-default: #2d2f38;
+                --chart-1: #9dd2ff;
+                --chart-2: #60d673;
+                --chart-3: #ffdb0f;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--ff-sans);
+            background-color: var(--surface);
+            color: var(--on-surface-default);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 500px;
+            background: transparent;
+            margin: 0 auto;
+            transition: max-width 0.4s ease;
+        }
+
+        .chart-section {
+            width: 100%;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 290px;
+            aspect-ratio: 1;
+            margin-bottom: 20px;
+        }
+
+        #donut-chart {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .donut-slice {
+            cursor: pointer;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+            transform-origin: 0 0;
+            outline: none;
+        }
+
+        .donut-slice:hover {
+            transform: scale(1.05);
+        }
+
+        .donut-slice.active {
+            transform: scale(1.06);
+        }
+
+        .donut-slice.dimmed {
+            opacity: 0.35;
+        }
+
+        .slice-label {
+            font-size: 13px;
+            font-weight: 500;
+            fill: var(--on-surface-default);
+            pointer-events: none;
+        }
+
+        .center-text-group {
+            pointer-events: none;
+            text-anchor: middle;
+        }
+
+        .center-title {
+            font-size: 13px;
+            fill: var(--on-surface-de-emphasis);
+        }
+
+        .center-value {
+            font-size: 26px;
+            font-weight: 600;
+            fill: var(--on-surface-default);
+            letter-spacing: -0.02em;
+        }
+
+        .center-sub {
+            font-size: 13px;
+            fill: var(--on-surface-de-emphasis);
+        }
+
+        .legend-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px 16px;
+            width: 100%;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: transparent;
+            transition: background 0.2s ease, opacity 0.2s ease;
+            user-select: none;
+        }
+
+        .legend-item:hover {
+            background: var(--surface-container);
+        }
+
+        .legend-item.active {
+            background: var(--surface-container-high);
+            font-weight: 600;
+        }
+
+        .legend-item.dimmed {
+            opacity: 0.4;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+            flex-shrink: 0;
+        }
+
+        .legend-label {
+            font-size: 13px;
+            color: var(--on-surface-default);
+        }
+
+        .details-section {
+            display: none;
+            width: 0;
+            opacity: 0;
+            flex-direction: column;
+            pointer-events: none;
+        }
+
+        @keyframes detailsFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--stroke-default);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface-container);
+            color: var(--on-surface-default);
+            border: none;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            font-family: inherit;
+        }
+
+        .back-btn:hover {
+            background: var(--surface-container-high);
+        }
+
+        .category-title-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-color-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .category-title {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            color: var(--on-surface-default);
+        }
+
+        .category-meta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .meta-divider {
+            width: 1px;
+            height: 32px;
+            background: var(--stroke-default);
+        }
+
+        .meta-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .meta-val {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--on-surface-default);
+        }
+
+        .meta-label {
+            font-size: 13px;
+            color: var(--on-surface-de-emphasis);
+            margin-top: 2px;
+        }
+
+        .holdings-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .holding-card {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .holding-info-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ticker-name-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ticker-badge {
+            background: var(--surface-container-high);
+            color: var(--on-surface-default);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .company-name {
+            font-size: 14px;
+            color: var(--on-surface-default);
+        }
+
+        .holding-value-group {
+            text-align: right;
+        }
+
+        .holding-val {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--on-surface-default);
+        }
+
+        .holding-pct {
+            font-size: 12px;
+            color: var(--on-surface-de-emphasis);
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 5px;
+            background: var(--surface-container-highest);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0%;
+        }
+
+        /* Responsive Layout */
+        @media (min-width: 541px) {
+            .dashboard-container.active {
+                flex-direction: row;
+                justify-content: space-between;
+                max-width: 860px;
+                gap: 20px;
+            }
+            .dashboard-container.active .chart-section {
+                width: 44%;
+                padding: 12px 6px;
+            }
+            .dashboard-container.active .details-section {
+                display: flex;
+                width: 54%;
+                opacity: 1;
+                pointer-events: auto;
+                animation: detailsFadeIn 0.25s ease;
+            }
+        }
+
+        @media (max-width: 540px) {
+            .dashboard-container.active {
+                max-width: 100%;
+            }
+            .dashboard-container.active .details-section {
+                display: flex;
+                width: 100%;
+                opacity: 1;
+                pointer-events: auto;
+                margin-top: 16px;
+                animation: detailsFadeIn 0.25s ease;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="dashboard-container" id="dashboard-container">
+        <!-- Area Grafico Sinistra -->
+        <section class="chart-section">
+            <div class="chart-wrapper">
+                <svg id="donut-chart" viewBox="-160 -160 320 320">
+                    <g id="slices-group"></g>
+                    <g id="labels-group"></g>
+                    <g class="center-text-group">
+                        <text class="center-title" y="-20">Portafoglio Totale</text>
+                        <text class="center-value" y="10">20.850 €</text>
+                        <text class="center-sub" y="34">12 Strumenti</text>
+                    </g>
+                </svg>
+            </div>
+            <div class="legend-container" id="legend-container"></div>
+        </section>
+
+        <!-- Area Dettaglio Destra -->
+        <section class="details-section" id="details-section">
+            <div class="category-header">
+                <div class="category-title-area">
+                    <div class="category-color-indicator" id="detail-color"></div>
+                    <h3 class="category-title" id="detail-title">Categoria</h3>
+                </div>
+                <button class="back-btn" id="btn-back">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Panoramica
+                </button>
+            </div>
+
+            <div class="category-meta">
+                <div class="meta-item">
+                    <div class="meta-val" id="detail-value">0 €</div>
+                    <div class="meta-label">Controvalore</div>
+                </div>
+                <div class="meta-divider"></div>
+                <div class="meta-item">
+                    <div class="meta-val" id="detail-percentage">0%</div>
+                    <div class="meta-label">Peso percentuale</div>
+                </div>
+            </div>
+
+            <div class="holdings-list-container" id="holdings-list"></div>
+        </section>
+    </main>
+
+    <script>
+        const portfolioData = {
+            total: 20850,
+            categories: [
+                {
+                    key: 'azioni',
+                    label: 'Azioni Singole',
+                    value: 8850,
+                    pct: 42,
+                    colorVar: '--chart-1',
+                    holdings: [
+                        { ticker: 'MCD', name: "McDonald's Corp.", value: 1500 },
+                        { ticker: 'AMZN', name: "Amazon.com Inc.", value: 1400 },
+                        { ticker: 'MSFT', name: "Microsoft Corp.", value: 1400 },
+                        { ticker: 'AVGO', name: "Broadcom Inc.", value: 1400 },
+                        { ticker: 'LDOS', name: "Leidos Holdings", value: 1400 },
+                        { ticker: 'IREN', name: "Iris Energy Ltd.", value: 350 },
+                        { ticker: 'SOFI', name: "SoFi Technologies", value: 350 },
+                        { ticker: 'CHKP', name: "Check Point Software", value: 350 },
+                        { ticker: 'SPCX', name: "SpaceX / SPCX", value: 350 },
+                        { ticker: 'OKLO', name: "Oklo Inc.", value: 350 }
+                    ]
+                },
+                {
+                    key: 'etf',
+                    label: 'ETF & Indici',
+                    value: 6500,
+                    pct: 31,
+                    colorVar: '--chart-2',
+                    holdings: [
+                        { ticker: 'US500', name: "S&P 500 Index / ETF", value: 6500 }
+                    ]
+                },
+                {
+                    key: 'crypto',
+                    label: 'Criptovalute',
+                    value: 5500,
+                    pct: 26,
+                    colorVar: '--chart-3',
+                    holdings: [
+                        { ticker: 'BTC', name: "Bitcoin (BTCUSD)", value: 5500 }
+                    ]
+                }
+            ]
+        };
+
+        let activeKey = null;
+
+        const dashboardContainer = document.getElementById('dashboard-container');
+        const slicesGroup = document.getElementById('slices-group');
+        const labelsGroup = document.getElementById('labels-group');
+        const legendContainer = document.getElementById('legend-container');
+        const btnBack = document.getElementById('btn-back');
+
+        const centerTitle = document.querySelector('.center-title');
+        const centerValue = document.querySelector('.center-value');
+        const centerSub = document.querySelector('.center-sub');
+
+        const detailColor = document.getElementById('detail-color');
+        const detailTitle = document.getElementById('detail-title');
+        const detailValue = document.getElementById('detail-value');
+        const detailPercentage = document.getElementById('detail-percentage');
+        const holdingsListContainer = document.getElementById('holdings-list');
+
+        function formatCurrency(val) {
+            return Number(val).toLocaleString('it-IT') + ' EUR';
+        }
+
+        function getArc(startAngle, endAngle, innerR, outerR) {
+            const x1 = outerR * Math.cos(startAngle), y1 = outerR * Math.sin(startAngle);
+            const x2 = outerR * Math.cos(endAngle),   y2 = outerR * Math.sin(endAngle);
+            const x3 = innerR * Math.cos(endAngle),   y3 = innerR * Math.sin(endAngle);
+            const x4 = innerR * Math.cos(startAngle), y4 = innerR * Math.sin(startAngle);
+            const large = (endAngle - startAngle) > Math.PI ? 1 : 0;
+            return `M ${x1} ${y1} A ${outerR} ${outerR} 0 ${large} 1 ${x2} ${y2} L ${x3} ${y3} A ${innerR} ${innerR} 0 ${large} 0 ${x4} ${y4} Z`;
+        }
+
+        function init() {
+            const outerR = 125, innerR = 88, labelR = 146, gap = 0.035;
+            let currentAngle = -Math.PI / 2;
+
+            portfolioData.categories.forEach(cat => {
+                const fraction = cat.value / portfolioData.total;
+                const sliceAngle = fraction * Math.PI * 2;
+                const start = currentAngle + gap / 2;
+                const end = currentAngle + sliceAngle - gap / 2;
+                const color = getComputedStyle(document.documentElement).getPropertyValue(cat.colorVar).trim();
+
+                // Path fetta
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', getArc(start, end, innerR, outerR));
+                path.setAttribute('fill', color);
+                path.setAttribute('class', 'donut-slice');
+                path.setAttribute('data-key', cat.key);
+                path.addEventListener('click', () => select(cat.key));
+                slicesGroup.appendChild(path);
+
+                // Label percentuale
+                const mid = (start + end) / 2;
+                const tx = labelR * Math.cos(mid);
+                const ty = labelR * Math.sin(mid);
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', tx);
+                text.setAttribute('y', ty);
+                text.setAttribute('class', 'slice-label');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('dominant-baseline', 'middle');
+                text.textContent = cat.pct + '%';
+                labelsGroup.appendChild(text);
+
+                // Elemento legenda
+                const legItem = document.createElement('div');
+                legItem.className = 'legend-item';
+                legItem.setAttribute('data-key', cat.key);
+                legItem.innerHTML = `<div class="legend-dot" style="background:${color}"></div><span class="legend-label">${cat.label}</span>`;
+                legItem.addEventListener('click', () => select(cat.key));
+                legendContainer.appendChild(legItem);
+
+                currentAngle += sliceAngle;
+            });
+
+            btnBack.addEventListener('click', reset);
+        }
+
+        function select(key) {
+            if (activeKey === key) {
+                reset();
+                return;
+            }
+            activeKey = key;
+            const cat = portfolioData.categories.find(c => c.key === key);
+            const color = getComputedStyle(document.documentElement).getPropertyValue(cat.colorVar).trim();
+
+            document.querySelectorAll('.donut-slice').forEach(s => {
+                if (s.getAttribute('data-key') === key) {
+                    s.classList.add('active');
+                    s.classList.remove('dimmed');
+                } else {
+                    s.classList.remove('active');
+                    s.classList.add('dimmed');
+                }
+            });
+
+            document.querySelectorAll('.legend-item').forEach(l => {
+                if (l.getAttribute('data-key') === key) {
+                    l.classList.add('active');
+                    l.classList.remove('dimmed');
+                } else {
+                    l.classList.remove('active');
+                    l.classList.add('dimmed');
+                }
+            });
+
+            centerTitle.textContent = cat.label;
+            centerValue.textContent = formatCurrency(cat.value);
+            centerSub.textContent = cat.pct + '%';
+
+            detailColor.style.backgroundColor = color;
+            detailTitle.textContent = cat.label;
+            detailValue.textContent = formatCurrency(cat.value);
+            detailPercentage.textContent = cat.pct + '%';
+
+            holdingsListContainer.innerHTML = '';
+            cat.holdings.forEach(h => {
+                const hPct = ((h.value / cat.value) * 100).toFixed(1);
+                const card = document.createElement('div');
+                card.className = 'holding-card';
+                card.innerHTML = `
+                    <div class="holding-info-top">
+                        <div class="ticker-name-group">
+                            <span class="ticker-badge">${h.ticker}</span>
+                            <span class="company-name">${h.name}</span>
+                        </div>
+                        <div class="holding-value-group">
+                            <div class="holding-val">${formatCurrency(h.value)}</div>
+                            <div class="holding-pct">${hPct}%</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="background-color: ${color}; width: 0%;"></div>
+                    </div>
+                `;
+                holdingsListContainer.appendChild(card);
+                setTimeout(() => {
+                    const fill = card.querySelector('.progress-bar-fill');
+                    if (fill) fill.style.width = hPct + '%';
+                }, 50);
+            });
+
+            dashboardContainer.classList.add('active');
+        }
+
+        function reset() {
+            activeKey = null;
+            document.querySelectorAll('.donut-slice').forEach(s => s.classList.remove('active', 'dimmed'));
+            document.querySelectorAll('.legend-item').forEach(l => l.classList.remove('active', 'dimmed'));
+
+            centerTitle.textContent = 'Portafoglio Totale';
+            centerValue.textContent = '20.850 €';
+            centerSub.textContent = '12 Strumenti';
+
+            dashboardContainer.classList.remove('active');
+        }
+
+        init();
+    </script>
+</body>
+</html>
