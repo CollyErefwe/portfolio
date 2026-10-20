@@ -386,7 +386,7 @@
                     <g id="labels-group"></g>
                     <g class="center-text-group">
                         <text class="center-title" y="-20">Portafoglio Totale</text>
-                        <text class="center-value" y="10">20.575 €</text>
+                        <text class="center-value" y="10">21.375 €</text>
                         <text class="center-sub" y="34">15 Strumenti</text>
                     </g>
                 </svg>
@@ -427,13 +427,13 @@
 
     <script>
         const portfolioData = {
-            total: 20575,
+            total: 21375,
             categories: [
                 {
                     key: 'azioni',
                     label: 'Azioni Singole',
                     value: 8375,
-                    pct: 38,
+                    pct: 39,
                     colorVar: '--chart-1',
                     holdings: [       
                         { ticker: 'V',    name: "Visa Inc.", value: 800 },
@@ -455,7 +455,7 @@
                     key: 'etf',
                     label: 'ETF & Indici',
                     value: 7500,
-                    pct: 36,
+                    pct: 35,
                     colorVar: '--chart-2',
                     holdings: [
                         { ticker: 'US500', name: "S&P 500 Index / ETF", value: 7500 }
@@ -627,7 +627,7 @@
             document.querySelectorAll('.legend-item').forEach(l => l.classList.remove('active', 'dimmed'));
 
             centerTitle.textContent = 'Portafoglio Totale';
-            centerValue.textContent = '20575 €';
+            centerValue.textContent = '21375 €';
             centerSub.textContent = '15 Strumenti';
 
             dashboardContainer.classList.remove('active');
