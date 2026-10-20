@@ -386,8 +386,8 @@
                     <g id="labels-group"></g>
                     <g class="center-text-group">
                         <text class="center-title" y="-20">Portafoglio Totale</text>
-                        <text class="center-value" y="10">20.425 €</text>
-                        <text class="center-sub" y="34">13 Strumenti</text>
+                        <text class="center-value" y="10">20.575 €</text>
+                        <text class="center-sub" y="34">15 Strumenti</text>
                     </g>
                 </svg>
             </div>
@@ -427,22 +427,26 @@
 
     <script>
         const portfolioData = {
-            total: 20425,
+            total: 20575,
             categories: [
                 {
                     key: 'azioni',
                     label: 'Azioni Singole',
-                    value: 4425,
-                    pct: 21,
+                    value: 8375,
+                    pct: 38,
                     colorVar: '--chart-1',
-                    holdings: [                            
-                        { ticker: 'LDOS', name: "Leidos Holdings", value: 900 },
-                        { ticker: 'AMZN', name: "Amazon.com Inc.", value: 900 },
-                        { ticker: 'AVGO', name: "Broadcom Inc.", value: 900 },
-                        { ticker: 'ORCL', name: "Oracle Corp.", value: 350 },
+                    holdings: [       
+                        { ticker: 'V',    name: "Visa Inc.", value: 800 },
+                        { ticker: 'CL',   name: "Colgate Comp.", value: 800 },
+                        { ticker: 'MCD',  name: "McDonald's Corp.", value: 1500 },
+                        { ticker: 'AMZN', name: "Amazon.com Inc.", value: 800 },
+                        { ticker: 'LDOS', name: "Leidos Holdings", value: 800 },
+                        { ticker: 'ISRG', name: "Intuitive Surgical", value: 800 },
+                        { ticker: 'CHKP', name: "Check Point Software", value: 800 },
+                        { ticker: 'AVGO', name: "Broadcom Inc.", value: 700 },
+                        { ticker: 'ORCL', name: "Oracle Corp.", value: 275 },
                         { ticker: 'IREN', name: "Iris Energy Ltd.", value: 275 },
                         { ticker: 'SOFI', name: "SoFi Technologies", value: 275 },
-                        { ticker: 'CHKP', name: "Check Point Software", value: 275 },
                         { ticker: 'SPCX', name: "SpaceX / SPCX", value: 275 },
                         { ticker: 'OKLO', name: "Oklo Inc.", value: 275 }
                     ]
@@ -450,20 +454,18 @@
                 {
                     key: 'etf',
                     label: 'ETF & Indici',
-                    value: 10500,
-                    pct: 51,
+                    value: 7500,
+                    pct: 36,
                     colorVar: '--chart-2',
                     holdings: [
-                        { ticker: 'US500', name: "S&P 500 Index / ETF", value: 7500 },
-                        { ticker: 'MCD', name: "McDonald's Corp.", value: 1500 },
-                        { ticker: 'VISA', name: "Visa Inc.", value: 1500 }, 
+                        { ticker: 'US500', name: "S&P 500 Index / ETF", value: 7500 }
                     ]
                 },
                 {
                     key: 'crypto',
                     label: 'Criptovalute',
                     value: 5500,
-                    pct: 28,
+                    pct: 26,
                     colorVar: '--chart-3',
                     holdings: [
                         { ticker: 'BTC', name: "Bitcoin (BTCUSD)", value: 5500 }
@@ -625,8 +627,8 @@
             document.querySelectorAll('.legend-item').forEach(l => l.classList.remove('active', 'dimmed'));
 
             centerTitle.textContent = 'Portafoglio Totale';
-            centerValue.textContent = '20425 €';
-            centerSub.textContent = '13 Strumenti';
+            centerValue.textContent = '20575 €';
+            centerSub.textContent = '15 Strumenti';
 
             dashboardContainer.classList.remove('active');
         }
