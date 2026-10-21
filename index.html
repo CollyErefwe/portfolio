@@ -8,8 +8,9 @@
         :root {
             --ff-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --chart-1: #3186ff;
-            --chart-2: #60d673;
-            --chart-3: #ffdb0f;
+            --chart-2: #ff5252;
+            --chart-3: #60d673;
+            --chart-4: #ffdb0f;
             --surface: #FAF9F9;
             --surface-bright: #ffffff;
             --surface-container: #f2f0f0;
@@ -30,9 +31,10 @@
                 --on-surface-default: #ffffff;
                 --on-surface-de-emphasis: #ababab;
                 --stroke-default: #2d2f38;
-                --chart-1: #9dd2ff;
-                --chart-2: #60d673;
-                --chart-3: #ffdb0f;
+                --chart-1: #60a5fa;
+                --chart-2: #f87171;
+                --chart-3: #60d673;
+                --chart-4: #ffdb0f;
             }
         }
 
@@ -339,7 +341,6 @@
             width: 0%;
         }
 
-        /* Responsive Layout */
         @media (min-width: 541px) {
             .dashboard-container.active {
                 flex-direction: row;
@@ -386,8 +387,8 @@
                     <g id="labels-group"></g>
                     <g class="center-text-group">
                         <text class="center-title" y="-20">Portafoglio Totale</text>
-                        <text class="center-value" y="10">21.375 €</text>
-                        <text class="center-sub" y="34">15 Strumenti</text>
+                        <text class="center-value" y="10">21.650 €</text>
+                        <text class="center-sub" y="34">16 Strumenti</text>
                     </g>
                 </svg>
             </div>
@@ -427,36 +428,46 @@
 
     <script>
         const portfolioData = {
-            total: 21375,
+            total: 21650,
             categories: [
                 {
-                    key: 'azioni',
-                    label: 'Azioni Singole',
-                    value: 8375,
-                    pct: 39,
+                    key: 'azioni_sicure',
+                    label: 'Azioni Sicure',
+                    value: 6300,
+                    pct: 29.1,
                     colorVar: '--chart-1',
-                    holdings: [       
-                        { ticker: 'V',    name: "Visa Inc.", value: 800 },
-                        { ticker: 'CL',   name: "Colgate Comp.", value: 800 },
+                    holdings: [
                         { ticker: 'MCD',  name: "McDonald's Corp.", value: 1500 },
+                        { ticker: 'V',    name: "Visa Inc.", value: 800 },
+                        { ticker: 'CL',   name: "Colgate-Palmolive", value: 800 },
                         { ticker: 'AMZN', name: "Amazon.com Inc.", value: 800 },
                         { ticker: 'LDOS', name: "Leidos Holdings", value: 800 },
                         { ticker: 'ISRG', name: "Intuitive Surgical", value: 800 },
-                        { ticker: 'CHKP', name: "Check Point Software", value: 800 },
+                        { ticker: 'CHKP', name: "Check Point Software", value: 800 }
+                    ]
+                },
+                {
+                    key: 'azioni_rischio',
+                    label: 'Azioni Rischiose',
+                    value: 2350,
+                    pct: 10.9,
+                    colorVar: '--chart-2',
+                    holdings: [
                         { ticker: 'AVGO', name: "Broadcom Inc.", value: 700 },
                         { ticker: 'ORCL', name: "Oracle Corp.", value: 275 },
                         { ticker: 'IREN', name: "Iris Energy Ltd.", value: 275 },
                         { ticker: 'SOFI', name: "SoFi Technologies", value: 275 },
                         { ticker: 'SPCX', name: "SpaceX / SPCX", value: 275 },
-                        { ticker: 'OKLO', name: "Oklo Inc.", value: 275 }
+                        { ticker: 'OKLO', name: "Oklo Inc.", value: 275 },
+                        { ticker: 'IONQ', name: "IonQ Inc.", value: 275 }
                     ]
                 },
                 {
                     key: 'etf',
                     label: 'ETF & Indici',
                     value: 7500,
-                    pct: 35,
-                    colorVar: '--chart-2',
+                    pct: 34.6,
+                    colorVar: '--chart-3',
                     holdings: [
                         { ticker: 'US500', name: "S&P 500 Index / ETF", value: 7500 }
                     ]
@@ -465,8 +476,8 @@
                     key: 'crypto',
                     label: 'Criptovalute',
                     value: 5500,
-                    pct: 26,
-                    colorVar: '--chart-3',
+                    pct: 25.4,
+                    colorVar: '--chart-4',
                     holdings: [
                         { ticker: 'BTC', name: "Bitcoin (BTCUSD)", value: 5500 }
                     ]
@@ -493,7 +504,7 @@
         const holdingsListContainer = document.getElementById('holdings-list');
 
         function formatCurrency(val) {
-            return Number(val).toLocaleString('it-IT') + ' EUR';
+            return Number(val).toLocaleString('it-IT') + ' €';
         }
 
         function getArc(startAngle, endAngle, innerR, outerR) {
@@ -516,7 +527,6 @@
                 const end = currentAngle + sliceAngle - gap / 2;
                 const color = getComputedStyle(document.documentElement).getPropertyValue(cat.colorVar).trim();
 
-                // Path fetta
                 const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 path.setAttribute('d', getArc(start, end, innerR, outerR));
                 path.setAttribute('fill', color);
@@ -525,7 +535,6 @@
                 path.addEventListener('click', () => select(cat.key));
                 slicesGroup.appendChild(path);
 
-                // Label percentuale
                 const mid = (start + end) / 2;
                 const tx = labelR * Math.cos(mid);
                 const ty = labelR * Math.sin(mid);
@@ -536,10 +545,9 @@
                 text.setAttribute('class', 'slice-label');
                 text.setAttribute('text-anchor', 'middle');
                 text.setAttribute('dominant-baseline', 'middle');
-                text.textContent = cat.pct + '%';
+                text.textContent = cat.pct.toFixed(1) + '%';
                 labelsGroup.appendChild(text);
 
-                // Elemento legenda
                 const legItem = document.createElement('div');
                 legItem.className = 'legend-item';
                 legItem.setAttribute('data-key', cat.key);
@@ -584,12 +592,12 @@
 
             centerTitle.textContent = cat.label;
             centerValue.textContent = formatCurrency(cat.value);
-            centerSub.textContent = cat.pct + '%';
+            centerSub.textContent = cat.pct.toFixed(1) + '%';
 
             detailColor.style.backgroundColor = color;
             detailTitle.textContent = cat.label;
             detailValue.textContent = formatCurrency(cat.value);
-            detailPercentage.textContent = cat.pct + '%';
+            detailPercentage.textContent = cat.pct.toFixed(1) + '%';
 
             holdingsListContainer.innerHTML = '';
             cat.holdings.forEach(h => {
@@ -627,8 +635,8 @@
             document.querySelectorAll('.legend-item').forEach(l => l.classList.remove('active', 'dimmed'));
 
             centerTitle.textContent = 'Portafoglio Totale';
-            centerValue.textContent = '21375 €';
-            centerSub.textContent = '15 Strumenti';
+            centerValue.textContent = '21.650 €';
+            centerSub.textContent = '16 Strumenti';
 
             dashboardContainer.classList.remove('active');
         }
