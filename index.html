@@ -387,8 +387,8 @@
                     <g id="labels-group"></g>
                     <g class="center-text-group">
                         <text class="center-title" y="-20">Portafoglio Totale</text>
-                        <text class="center-value" y="10">21.650 €</text>
-                        <text class="center-sub" y="34">16 Strumenti</text>
+                        <text class="center-value" y="10">22.200 €</text>
+                        <text class="center-sub" y="34">18 Strumenti</text>
                     </g>
                 </svg>
             </div>
@@ -428,33 +428,35 @@
 
     <script>
         const portfolioData = {
-            total: 21650,
+            total: 22200,
             categories: [
                 {
                     key: 'azioni_sicure',
                     label: 'Azioni Sicure',
                     value: 6300,
-                    pct: 29.1,
+                    pct: 28.3,
                     colorVar: '--chart-1',
                     holdings: [
                         { ticker: 'MA',    name: "Mastercard Inc.", value: 800 },
                         { ticker: 'MCD',  name: "McDonald's Corp.", value: 1500 },
                         { ticker: 'COST', name: "Costco Corp.", value: 800 },
-                        { ticker: 'AMZN', name: "Amazon.com Inc.", value: 800 },
                         { ticker: 'LDOS', name: "Leidos Holdings", value: 800 },
                         { ticker: 'ISRG', name: "Intuitive Surgical", value: 800 },
                         { ticker: 'CHKP', name: "Check Point Software", value: 800 }
+                        { ticker: 'AMZN', name: "Amazon.com Inc.", value: 800 },
                     ]
                 },
                 {
                     key: 'azioni_rischio',
                     label: 'Azioni Rischiose',
-                    value: 2350,
-                    pct: 10.9,
+                    value: 2950,
+                    pct: 13.1,
                     colorVar: '--chart-2',
                     holdings: [
                         { ticker: 'AVGO', name: "Broadcom Inc.", value: 700 },
                         { ticker: 'ORCL', name: "Oracle Corp.", value: 275 },
+                        { ticker: 'META', name: "Meta Platforms Inc.", value: 275 },
+                        { ticker: 'GOOG', name: "Alphabet Inc.", value: 275 },
                         { ticker: 'IREN', name: "Iris Energy Ltd.", value: 275 },
                         { ticker: 'SOFI', name: "SoFi Technologies", value: 275 },
                         { ticker: 'SPCX', name: "SpaceX / SPCX", value: 275 },
@@ -466,7 +468,7 @@
                     key: 'etf',
                     label: 'ETF & Indici',
                     value: 7500,
-                    pct: 34.6,
+                    pct: 33.6,
                     colorVar: '--chart-3',
                     holdings: [
                         { ticker: 'US500', name: "S&P 500 Index / ETF", value: 7500 }
@@ -476,7 +478,7 @@
                     key: 'crypto',
                     label: 'Criptovalute',
                     value: 5500,
-                    pct: 25.4,
+                    pct: 25,
                     colorVar: '--chart-4',
                     holdings: [
                         { ticker: 'BTC', name: "Bitcoin (BTCUSD)", value: 5500 }
@@ -635,8 +637,8 @@
             document.querySelectorAll('.legend-item').forEach(l => l.classList.remove('active', 'dimmed'));
 
             centerTitle.textContent = 'Portafoglio Totale';
-            centerValue.textContent = '21.650 €';
-            centerSub.textContent = '16 Strumenti';
+            centerValue.textContent = '22.200 €';
+            centerSub.textContent = '18 Strumenti';
 
             dashboardContainer.classList.remove('active');
         }
